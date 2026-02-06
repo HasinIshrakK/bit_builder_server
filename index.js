@@ -39,6 +39,7 @@ async function run() {
     //   res.send(members)
     // })
 
+    // all get
     app.get("/members", async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 1;
@@ -68,6 +69,7 @@ async function run() {
       }
     });
 
+    // single get
     app.get("/members/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -75,12 +77,26 @@ async function run() {
       res.send(result);
     });
 
+
+    // app.post("/members", async (req, res) => {
+    //   const member = req.body;
+    //   const result = await membersCollection.insertOne(member);
+    //   res.send(result);
+    // });
+
+
+    // post
     app.post("/members", async (req, res) => {
       const member = req.body;
+      const existing = await membersCollection.findOne({ email: member.email });
+      if (existing) {
+        return res.send({ message: "Member already exists" });
+      }
       const result = await membersCollection.insertOne(member);
       res.send(result);
     });
 
+    // patch
     app.patch("/members/:id", async (req, res) => {
       const id = req.params.id;
       const updateMember = req.body;
@@ -96,16 +112,28 @@ async function run() {
           image: updateMember.image,
         },
       };
-      const options = {}
-      const result = await membersCollection.updateOne(query, update, options)
-      res.send(result)
+      const options = {};
+      const result = await membersCollection.updateOne(query, update, options);
+      res.send(result);
     });
 
+    // delete
+    app.delete("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await membersCollection.deleteOne(query);
+      res.send(result);
+    });
+
+
+    // ping
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
-  } finally {
+  } 
+  finally {
+
   }
 }
 run().catch(console.dir);
