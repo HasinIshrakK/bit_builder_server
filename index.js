@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express")
 const cors = require("cors")
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, Collection } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 3000;
 
@@ -35,6 +35,14 @@ async function run() {
     
     await client.connect();
 
+    const db = client.db("bit_builder")
+    const membersCollection = db.collection("members")
+
+    // members api
+    app.get('/members', async (req, res)=> {
+      const members = await membersCollection.find().toArray();
+      res.send(members)
+    })
 
 
     
