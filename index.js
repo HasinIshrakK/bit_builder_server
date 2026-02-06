@@ -75,14 +75,31 @@ async function run() {
       res.send(result);
     });
 
-
-    app.post('/members', async(req, res) =>{
+    app.post("/members", async (req, res) => {
       const member = req.body;
-      const result = await membersCollection.insertOne(member)
+      const result = await membersCollection.insertOne(member);
+      res.send(result);
+    });
+
+    app.patch("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateMember = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          name: updateMember.name,
+          role: updateMember.role,
+          email: updateMember.email,
+          discord: updateMember.discord,
+          phone: updateMember.phone,
+          facebook: updateMember.facebook,
+          image: updateMember.image,
+        },
+      };
+      const options = {}
+      const result = await membersCollection.updateOne(query, update, options)
       res.send(result)
-    })
-
-
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
