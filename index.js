@@ -32,17 +32,6 @@ async function run() {
   try {
     await client.connect();
 
-<<<<<<< HEAD
-    const db = client.db("bit_builder");
-    const membersCollection = db.collection("members");
-    const projectsCollection = db.collection("projects");
-
-=======
-    db = client.db("bit_builder");
-    membersCollection = db.collection("members");
-    projectsCollection = db.collection("projects");
->>>>>>> 8f6ee3d6163087555d736057d075c29948474bc9
-    // members api
     // all member get
     // app.get('/members', async (req, res)=> {
     //   const members = await membersCollection.find().toArray();
@@ -207,109 +196,6 @@ async function run() {
   } finally {
   }
 }
-app.get("/members", async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const sortBy = req.query.sortBy || "name";
-    const order = req.query.order === "desc" ? -1 : 1;
-
-    const skip = (page - 1) * limit;
-
-    const members = await membersCollection
-        .find()
-        .sort({ [sortBy]: order })
-        .skip(skip)
-        .limit(limit)
-        .toArray();
-
-    const total = await membersCollection.countDocuments();
-
-    res.send({
-      data: members,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    res.status(500).send({ message: "Server error" });
-  }
-});
-
-app.get("/members/:id", async (req, res) => {
-  const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
-  const result = await membersCollection.findOne(query);
-  res.send(result);
-});
-
-
-app.post('/members', async(req, res) =>{
-  const member = req.body;
-  const result = await membersCollection.insertOne(member)
-  res.send(result)
-});
-
-app.get("/projects", async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6;
-    const sortBy = req.query.sortBy || "name";
-    const order = req.query.order === "desc" ? -1 : 1;
-
-    const skip = (page - 1) * limit;
-    const projects = await projectsCollection
-        .find()
-        .sort({ [sortBy]: order })
-        .skip(skip)
-        .limit(limit)
-        .toArray();
-
-    const total = await projectsCollection.countDocuments();
-
-    res.send({
-      data: projects,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    res.status(500).send({ message: "Server error" });
-  }
-});
-
-app.get("/projects/:id", async (req, res) => {
-  const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
-  const result = await projectsCollection.findOne(query);
-  res.send(result);
-});
-
-app.post('/projects', async(req, res) => {
-  const project = req.body;
-  const result = await projectsCollection.insertOne(project);
-  res.send(result);
-});
-
-app.patch('/projects/:id', async(req, res) => {
-  const id = req.params.id;
-  const updateData = req.body;
-  const filter = { _id: new ObjectId(id) };
-  const updateDoc = {
-    $set: updateData,
-  };
-  const result = await projectsCollection.updateOne(filter, updateDoc);
-  res.send(result);
-});
-
-app.delete('/projects/:id', async(req, res) => {
-  const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
-  const result = await projectsCollection.deleteOne(query);
-  res.send(result);
-})
 run().catch(console.dir);
 
-app.listen(port, () => {
-  console.log(`Bit Builder listening on port ${port}`);
-})
+
