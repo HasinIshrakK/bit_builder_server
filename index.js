@@ -32,14 +32,16 @@ async function run() {
 
     const db = client.db("bit_builder");
     const membersCollection = db.collection("members");
+    const projectsCollection = db.collection("projects");
 
     // members api
+    // all member get
     // app.get('/members', async (req, res)=> {
     //   const members = await membersCollection.find().toArray();
     //   res.send(members)
     // })
 
-    // all get
+    // all member get
     app.get("/members", async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 1;
@@ -69,7 +71,7 @@ async function run() {
       }
     });
 
-    // single get
+    // single member get
     app.get("/members/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -77,15 +79,13 @@ async function run() {
       res.send(result);
     });
 
-
     // app.post("/members", async (req, res) => {
     //   const member = req.body;
     //   const result = await membersCollection.insertOne(member);
     //   res.send(result);
     // });
 
-
-    // post
+    // post member
     app.post("/members", async (req, res) => {
       const member = req.body;
       const existing = await membersCollection.findOne({ email: member.email });
@@ -96,7 +96,7 @@ async function run() {
       res.send(result);
     });
 
-    // patch
+    // patch member
     app.patch("/members/:id", async (req, res) => {
       const id = req.params.id;
       const updateMember = req.body;
@@ -117,7 +117,7 @@ async function run() {
       res.send(result);
     });
 
-    // delete
+    // delete member
     app.delete("/members/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -126,14 +126,77 @@ async function run() {
     });
 
 
+    // projects api
+    // all project get
+    app.get("/projects", async (req, res) => {
+      try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const sortBy = req.query.sortBy || "name";
+        const order = req.query.order === "desc" ? -1 : 1;
+
+        const skip = (page - 1) * limit;
+        const projects = await projectsCollection
+          .find()
+          .sort({ [sortBy]: order })
+          .skip(skip)
+          .limit(limit)
+          .toArray();
+
+        const total = await projectsCollection.countDocuments();
+
+        res.send({
+          data: projects,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit),
+        });
+      } catch (error) {
+        res.status(500).send({ message: "Server error" });
+      }
+    });
+
+    // single project get
+    app.get("/projects/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await projectsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // post project
+    app.post("/projects", async (req, res) => {
+      const project = req.body;
+      const result = await projectsCollection.insertOne(project);
+      res.send(result);
+    });
+
+    // patch project
+    app.patch("/projects/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: updateData,
+      };
+      const result = await projectsCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // delete project
+    app.delete("/projects/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await projectsCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // ping
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
-  } 
-  finally {
-
+  } finally {
   }
 }
 run().catch(console.dir);
