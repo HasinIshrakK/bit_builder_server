@@ -27,16 +27,24 @@ const client = new MongoClient(uri, {
   },
 });
 
+
+
 let db, membersCollection, projectsCollection;
 async function run() {
   try {
     await client.connect();
+
+    // const db = client.db('bit_builder');
+    // const membersCollection = db.collection("members");
+    // const projectsCollection = db.collection("projects");
+
 
     // all member get
     // app.get('/members', async (req, res)=> {
     //   const members = await membersCollection.find().toArray();
     //   res.send(members)
     // })
+
 
     // all member get
     app.get("/members", async (req, res) => {
